@@ -1,0 +1,3 @@
+sina.com 52.5
+sohu.com 42.5
+baidu.com 35

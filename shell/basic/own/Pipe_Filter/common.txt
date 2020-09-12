@@ -1,0 +1,37 @@
+管道
+1.概述:shell还有一种功能就就是将两个或者多个程序链接到一起,使一个程序的输出变为下一个程序的输入,以这种方式链接的两个或者多个程序链接到一起就形成了管道
+这些命令之间使用控制操作符(管道)"|" 连接,语法就是
+command1|command2
+command1|command2|command3
+command1正确输出,作为command2的输入,然后comand2的输出作为comand3的输入,comand3输出就会直接显示在屏幕上面了
+通过管道之后：comand1,comand2的正确输出不显示在屏幕上面
+
+2.注意：
+1>、管道命令只处理前一个命令正确输出，不处理错误输出
+2>、管道命令右边命令，必须能够接收标准输入流命令才行。
+
+3.操作符"|"和">"之间的区别
+重定向操作符>是将命令和文件连接,而管道符"|"将第一个命令的输出和第二个命令的输入连接
+command >file
+command1|command2
+
+通过管道将3个命令串联到一起就完成了远程mysql备份的复杂任务
+mysqldump -u root -p'password' wiki >/tmp/wikidb.backup
+gzip -9 /tmp/wikidb.backup
+scp /tmp/wikidb.gz user@backupserver:/backup/mysql
+等同于下面:
+mysqldump -u root -p'password' wiki |gzip -9|ssh user@backupserver "cat > /home/user/mysql/wikidb.gz"
+
+4.查看common.md文件是否在当前目录下面
+bash》ls|grep common.md
+common.md
+查看当前系统又多少登录用户
+bash》» who|wc -l
+       4
+检查php的yaf扩展是否安装
+bash》php -m|grep 'yaf'
+yaf
+
+
+
+

@@ -1,0 +1,5 @@
+ubuntu:linux
+centos:unix
+oel:solaris
+fedora:Hp-ux
+redhat:windows

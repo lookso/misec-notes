@@ -1,0 +1,82 @@
+实例demo摘自:《Linux Shell命令行及脚本编程实例详解》
+1.Shell $开头常见用法:
+$# 是传给脚本的参数个数
+$0 是脚本本身的名字
+$1 是传递给该shell脚本的第一个参数
+$2 是传递给该shell脚本的第二个参数
+$@ 是传给脚本的所有参数的列表
+$* 是以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过9个
+$$ 是脚本运行的当前进程ID号
+$? 是显示最后命令的退出状态，0表示没有错误，其他表示有错误,或者函数的返回值
+
+2.Shell条件判断
+-eq 等于则为真
+-ne 不等于则为真
+-gt 大于则为真
+-ge 大于等于则为真
+-lt 小于则为真
+-le 小于等于则为真
+-z 表示是否是空字符串
+# if [ -z "$1" ];then
+
+3.Linux重定向操作符 功能描述
+https://www.cnblogs.com/qwj-sysu/p/4989656.html
+
+> 将命令输出写入文件或设备，而不是命令提示符或句柄，清空原有文件然后写入
+< 从文件而不是从键盘或句柄读入命令输入
+>> 将命令输出添加到文件末尾而不删除文件中已有的信息 与>比较使用
+>& 将一个句柄的输出写入到另一个句柄的输入中
+<& 从一个句柄读取输入并将其写入到另一个句柄输出中
+| 从一个命令中读取输出并将其写入另一个命令的输入中；也称为管道操作符
+mysh > mylog.txt 2>&1就可明白：
+> mylog.txt意思是将标准输出重定向到mylog.txt，等价于mysh 1> mylog.txt；
+2 >& 1 意思是将错误输出重定向到句柄1标准输出；综合起来就是mysh命令执行过程中产生的标准输出和错误输出都会被重定向到mylog.txt中
+
+4.比较运算符
+文件比较运算符
+-e filename 如果 filename 存在，则为真      [ -e /var/log/syslog ]
+-d filename 如果 filename 为目录，则为真     [ -d /tmp/mydir ]
+-f filename 如果 filename 为常规文件，则为真  [ -f /usr/bin/grep ]
+-L filename 如果 filename 为符号链接，则为真  [ -L /usr/bin/grep ]
+-r filename 如果 filename 可读，则为真   [ -r /var/log/syslog ]
+-w filename 如果 filename 可写，则为真   [ -w /var/mytmp.txt ]
+-x filename 如果 filename 可执行，则为真    [ -x /usr/bin/grep ]
+filename1 -nt filename2 如果 filename1 比 filename2 新，则为真  [ /tmp/install/etc/services -nt /etc/services ]
+filename1 -ot filename2 如果 filename1 比 filename2 旧，则为真  [ /boot/bzImage -ot arch/i386/boot/bzImage ]
+
+字符串比较运算符 (请注意引号的使用，这是防止空格扰乱代码的好方法)
+-z string   如果 string 长度为零，则为真    [ -z "$myvar" ]
+-n string   如果 string 长度非零，则为真    [ -n "$myvar" ]
+string1 = string2   如果 string1 与 string2 相同，则为真    [ "$myvar" = "one two three" ]
+string1 != string2  如果 string1 与 string2 不同，则为真    [ "$myvar" != "one two three" ]
+
+算术比较运算符
+num1 -eq num2   等于    [ 3 -eq $mynum ]
+num1 -ne num2   不等于  [ 3 -ne $mynum ]
+num1 -lt num2   小于    [ 3 -lt $mynum ]
+num1 -le num2   小于或等于  [ 3 -le $mynum ]
+num1 -gt num2   大于    [ 3 -gt $mynum ]
+num1 -ge num2   大于或等于  [ 3 -ge $mynum ]
+
+复杂逻辑判断
+-a  与 
+-o　或 
+!　 非
+
+5.shell中各种括号的作用()、(())、[]、[[]]、{}
+http://blog.csdn.net/taiyang1987912/article/details/39551385
+
+base_package(){
+    lsof_exists=$(type lsof >/dev/null 2>&1;echo $?)
+    apt_exists=$(type apt-get >/dev/null 2>&1;echo $?)
+    if [ x"${lsof_exists}" != x"0" ];then
+        if [ x"${apt_exists}" == x"0" ];then
+            apt-get -y install lsof curl
+        else
+            yum -y install lsof curl
+        fi
+    fi
+}
+在上面这个函数中shell中为什么在比较字符串的时候要加一个x?
+没有其他含义,如果变量为空,或者未定义,这样会引起错误,防止出现语法错误。如果不写X，当$?为空或未设置时，语句被解释为 if [ = "0" ]， 出现语法错误。加上X后解释未 if [ X = X"0" ] ，依然正确。当$? 不为空时，两者是一样的
+

@@ -1,0 +1,711 @@
+#!/bin/bash
+一.linux shell基础和使用
+A.SHELL变量
+1.查看当前shell中所有用户的系统变量和自定义变量
+[root@iZ257v6fpmnZ ~]# env 或者printenv
+2.常用的系统变量使用:
+3.环境变量:
+[root@iZ257v6fpmnZ ~]# echo $PATH
+4.当前用户的主目录
+[root@iZ257v6fpmnZ ~]# echo $HOME
+/root
+5.设置登录shell的路径
+[root@iZ257v6fpmnZ home]# echo $SHELL
+/bin/bash
+6.定义变量和给改变量赋值
+tenludeMacBook-Air :: ~ » name=jack # 等号两边不要有空格
+tenludeMacBook-Air :: ~ » echo $name
+jack
+7.需要注意的是SHEll的默认赋值都是字符串赋值
+tenludeMacBook-Air :: ~ » num1=1 127 
+tenludeMacBook-Air :: ~ » num2=2
+tenludeMacBook-Air :: ~ » echo $num1+$num2 # 并不是想象中的 等于3
+1+2
+8.shell算数
+要将算数表达式的值赋予一个变量可以使用let,$作变量或运算替换
+tenludeMacBook-Air :: ~ » let num3=$num1+$num2
+tenludeMacBook-Air :: ~ » num4=$num3
+tenludeMacBook-Air :: ~ » echo $num4
+3
+tenludeMacBook-Air :: ~ » echo $num3
+3                                
+参考外部算数扩展:echo $[100*12-200]和echo $((12+23))
+9.将命令的结果赋值给变量
+tenludeMacBook-Air :: ~ » t=$(pwd)
+tenludeMacBook-Air :: ~ » echo $t
+/Users/tenlu
+10.类似c语言prinf()函数的用法
+tenludeMacBook-Air :: ~ » var=123
+tenludeMacBook-Air :: ~ » printf "%s\n" $var
+123
+11.删除变量使用unset 比如: unset name
+12.export语句的使用
+bash的内置命令export会将执行给他的变量或函数自动输出到后续命令的执行环境
+窗口1:
+j_home="/usr/local/j_sdk"
+export j_home
+使用这样export之后另起一个窗口2:
+echo $j_home 就可以看到以下输出
+/usr/local/j_sdk
+不然就是空行了
+13.也可以使用{}来显示变量
+tenludeMacBook-Air :: ~ » echo ${j_home}
+/usr/local/j_sdk
+B.shell环境进阶
+1.bash将命令历史保存在缓冲区或是默认文件~./bash_history中,可以保存多少命令
+2.ctrl+R可以搜索历史命令
+查看系统负载,CPU消耗
+3.使用!!可以调用上次的命令
+[root@iZ257v6fpmnZ ~]# uptime
+23:23:34 up 6 days, 1:36, 1 user, load average: 0.00, 0.00, 0.00
+[root@iZ257v6fpmnZ ~]# !!
+uptime
+23:23:54 up 6 days, 1:36, 1 user, load average: 0.00, 0.00, 0.00
+[root@iZ257v6fpmnZ ~]# !up
+uptime
+23:23:40 up 6 days, 1:36, 1 user, load average: 0.00, 0.00, 0.00
+
+C.shell的扩展-大括号扩展、算数扩展。。。
+1.算数扩展
+算术扩展的语法是：((表达式))，如果表达式中有变量，该变量之前最好不要加((表达式))，如果表达式中有变量，该变量之前最好不要加这个符号，以免变量不存在造成语法错误，例：
+unset i
+echo ((2+((2+i))
+由于变量i不存在，所以会变成 echo((2+)),这样语法就错误了。但如果写成echo((2+)),这样语法就错误了。但如果写成echo((2+i)),((2+i))是一个合法的算术式，就算变量不存在，仍可正确计算。
+tenludeMacBook-Air :: ~ » echo $((1+2))
+3
+tenludeMacBook-Air :: ~ » echo $[100*12-200]
+1000
+此处也可以内置命令let
+2.{<START>..<END>..<INCR>}
+<INCR>是增量是个整数
+(1)打印出16以内奇数:
+tenludeMacBook-Air :: ~ » echo {1..16..2}
+1 3 5 7 9 11 13 15
+(2)隔若干个字母打印26位英文字母
+[root@iZ257v6fpmnZ ~]# echo {a..z..1}
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+[root@iZ257v6fpmnZ ~]# echo {a..z..2}
+a c e g i k m o q s u w y
+[root@iZ257v6fpmnZ ~]# echo {a..z..3}
+a d g j m p s v y
+[root@iZ257v6fpmnZ ~]# echo {a..z}
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+[root@iZ257v6fpmnZ ~]# echo {1..10}
+1 2 3 4 5 6 7 8 9 10
+[root@iZ257v6fpmnZ ~]# echo {a..c}{1..3}
+a1 a2 a3 b1 b2 b3 c1 c2 c3
+[root@iZ257v6fpmnZ ~]# echo {{a..c},d{1..3}}
+a b c d1 d2 d3
+[root@iZ257v6fpmnZ ~]# echo {a..c},d{1..3}
+a,d1 a,d2 a,d3 b,d1 b,d2 b,d3 c,d1 c,d2 c,d3
+[root@iZ257v6fpmnZ ~]# echo {{a..c},d{1..3}}
+a b c d1 d2 d3
+tenludeMacBook-Air :: ~ » echo a{b,c,d}e
+abe ace ade
+
+3.波浪号扩展用来指代自己的主目录
+[root@iZ257v6fpmnZ ~]# echo $(pwd)
+/root
+[root@iZ257v6fpmnZ ~]# echo ~
+/root
+
+常用bash命令
+1.ls
+drwxr-xr-x 18 root root 12288 10月  7 19:54 wp-includes
+-rw-r--r--  1 root root  2422 10月  7 19:54 wp-links-opml.php
+lrwxr-xr-x  1 LuKun  staff     5B  6 16  2016 13.txt -> 1.txt
+第一个连接符'-'
+-表示普通文件
+d表示是文件夹
+s表示的套接字文件比如 mysql.sock
+l表示的链接文件
+接下来的是文件的权限信息/文件的拥有者和文件所属的组/文件的大小(字节)/文件最后的修改时间/文件名字
+ls -ls 将文件按照文件夹大小的正向顺序排列
+ls -i 显示文件的inode编号
+
+2.cat 
+使用cat -n filename 可以显示文件的行号
+使用cat -b filename 可以显示非空白行的文件的行号
+3.more和less分屏显示文件
+4.head -10  wp-config.php 显示文件前10行
+5.tail -10 wp-config.php  显示文件后10行
+tail -f 实时显示文件内容
+6.file wp-config.php 查看文件类型
+wp-config.php: PHP script text
+7.wc  wp-config.php
+100  189 3231 wp-config.php
+表示100行 189个单词,3231个字节
+8.find
+(1)找到目录名是wp开头的文件夹
+find / -type d -name "wp*"
+找出文件权限是777的文件
+find / -type f -perm 0777
+找出文件权限不是777的文件
+find / -type f ! -perm 0777
+找出当前目录下的空文件
+find / -type f -empty
+找出当前目录下所有的隐藏文件
+find / -type f -name  "*.*"
+找出/tmp/目录下所有者是root的文件和目录
+find /tmp/ -user root 
+找出当前目录下大小是50M的文件
+find / -type f -size 50M
+找出当前目录下大于50M小于100M的文件
+find / -type f -size +50M -size -100M
+找出主目录下大于100M的文件并且删除
+find / -type f -size +100M exec rm -rf {} \ 
+找出你账号下目录下3天内改过的所有文件
+find / -type f -mtime -3
+9.mkdir
+mkdir -p 创建多级目录
+mkdir -p /php/log/error.log
+mkdir -p -m 创建多级目录并且为目录赋予777的权限
+mkdir -p -m 777 /php/log/error.log 或者
+mkdir -p -m a=rwx /php/log/error.log
+10.ln
+ln -s 创建一个软链接
+默认是创建一个硬链接
+linux 不允许给目录创建硬链接
+删除软链接不删除源文件本身
+11.删除当前目录下含有a或者b或者c的所有文件
+rm -rf * [abc] *
+？表示的一个字符
+.表示的一个或者多个字符
+rm -rf "ab."
+二.文本处理
+1.文档处理和归档
+(1) paste合并一个或者多个文件的行,合并后的文件中各行将以tab作为分隔符进行合并输出
+[shell]# cat file1
+Linux
+Unix
+Windows
+Solaris
+HPUX
+[shell]# cat file2
+Dell
+IBM
+HP
+Oracle
+HP
+[shell]# paste file1 file2
+Linux   Dell
+Unix    IBM
+Windows HP
+Solaris Oracle
+HPUX    HP
+使用-d可以指定合并时候使用的分隔符
+[shell]# paste -d "|" file1 file2
+Linux|Dell
+Unix|IBM
+Windows|HP
+Solaris|Oracle
+HPUX|HP
+使用-s 可以顺序的将每个文件中的所有的行的内容合并为一行,2个文件即输出2行
+[root@iZ257v6fpmnZ shell]# paste -s file1 file2
+Linux   Unix    Windows Solaris HPUX
+Dell    IBM HP  Oracle  HP
+(2)dd拷贝和备份文件,转换数据文件
+dd有俩个参数
+if=<inputfile> 指定输入文件的路径
+of=<outputfile>指定输出文件的路径,默认为标准输出
+例如复制一个磁盘/dev/sda的数据到另一个磁盘/dev/sdb
+dd if=/dev/sda of=/dev/sdb
+擦除一个分区的数据
+dd if=/dev/zero of=/dev/sda2
+/dev/zero是linux系统中的一个特殊文件,从/dev/zero读出的数据均为空字符
+dd还有另外两个比较重要的参数
+bs=<n> 指定输入和输出的块大小,默认单位是字节
+count=<n> 从输入读取的块数量
+例如创建一个1MB大小的文件,并且块大小是1024bytes
+dd if=/dev/zero of=/tmp/outfile bs=1024 count=1024
+
+又例如在阿里云机器上创建2G虚拟内存使用
+那么设置2G交换分区来用下:
+# dd if=/dev/zero of=/swapfile bs=1k count=2048000 --获取要增加的2G的SWAP文件块
+# mkswap /swapfile     --创建SWAP文件
+# swapon /swapfile     --激活SWAP文件
+# swapon -s            --查看SWAP信息是否正确
+# echo "/var/swapfile swap swap defaults 0 0" >> /etc/fstab     -- 添加到fstab文件中让系统引导时自动启动
+注意, swapfile文件的路径在/var/下
+[root@iZ257v6fpmnZ php-7.1.10]# free
+total       used       free     shared    buffers     cached
+Mem:        500472     493984       6488          0       2872     426552
+-/+ buffers/cache:      64560     435912
+Swap:      2047992          0    2047992
+编译完后, 如果不想要交换分区了, 可以删除:
+# swapoff /swapfile
+# rm -fr /swapfile
+
+(3)df 报错文件系统磁盘空间利用率
+df -h 以G为单位显示磁盘空间信息
+df -m 以MB为单位显示磁盘空间信息
+df -a 显示所有文件系统信息,包括虚拟文件系统
+[root@iZ257v6fpmnZ shell]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/xvda1       20G   11G  8.3G  57% /
+tmpfs           245M     0  245M   0% /dev/shm
+(4) du 评估文件空间利用率
+[root@iZ257v6fpmnZ learn]# du -h
+16K    ./shell
+20K    .
+默认是以1024字节为大小单位
+[root@iZ257v6fpmnZ learn]# du -a
+0  ./shell/abc
+4  ./shell/file2
+4  ./shell/file1
+4  ./shell/file3
+16 ./shell
+20 .
+--exclude 排除指定模式的文件的大小(除了.jpg文件的所有文件大小)
+[root@iZ257v6fpmnZ learn]# du -ah --exclude="*.jpg"
+0   ./shell/abc
+4.0K    ./shell/file2
+4.0K    ./shell/file1
+4.0K    ./shell/file3
+16K ./shell
+20K .
+(5)cron/crontab 
+cron进程会从/etc/init.d中启动,cron进程会在目录/var/spool/cron/crontabs下搜索定时任务文件,并将找到这些定时任务载入内存
+cron 每一分钟唤醒一次，检查他的池目录/var/spool/cron/crontabs的修改时间是否改变,如果改变则重新加载那些已经被修改的定时计划任务文件
+* * * * * 分时日月周
+(-)表示一个一个范围, 0 2 * * 1-5 周一到周五凌晨2点执行
+(/)表示每隔多久 */5 * * * * 表示每5分钟执行一次
+(,)表示或 * 0,3,6,8 * * * 表示每天0点,3点,6点,8点执行一次
+
+crontab -l 列出当前用户的所有定时计划任务
+只有root可以查看所有用户的定时任务
+
+(6)nohup 脚本不挂断运行,一旦退出系统,可以继续运行脚本,和&结合使用
+(7)grep
+比如，我想搜源码目录src下，包含“niuc”的所有ec文件
+find ./src -name '*.ec' -exec grep -i niuc {} /; -print
+在特定文件中grep某关键字，除了使用find 命令加exec选项之外，其实还有更简单的方法：
+grep -R --include="*.cpp" key dir
+
+grep --include="*.php"  -rn key  dir   我经常用这个组合
+grep key --include="*.*" -rn dir
+显示搜索内容所在行的行号
+
+(8)chmod
+u=用户（user）”，即文件或目录的所有者
+g=同组（group）用户”，即与文件属主有相同组ID的所有用户
+o=其他（others）用户
+a=表示“所有（all）用户”。它是系统默认值
+操作符号可以是：
++ 添加某个权限。
+- 取消某个权限。
+= 赋予给定权限并取消其他所有权限（如果有的话）。
+设置mode所表示的权限可用下述字母的任意组合：
+r 可读。
+w 可写。
+x 可执行。
+r=4,w=2,x=1
+chmod u+x test.php
+
+
+
+三.shell编程基础
+(1)参数名对大小写敏感
+declare是shell内部命令,用户声明和修改变量属性
+declare -r声明变量后，那么该变量就不能再修改
+declare -r var name="jack"
+» name="tom"
+zsh: read-only variable: name
+‹master*› » unset name
+zsh: read-only variable: name
+(2)数组
+可以使用一对括号表示数组
+间接声明一个数组
+array[1]="index"
+‹master*› » declare -a linux=("tom" "jack") 其实没必要使用declare -a。
+所有变量都不必显式定义就可以用作数组。
+事实上,在某种意义上,似乎所有变量都是数组,而且赋值给没有下标的变量与赋值给"[0]"相同
+‹master*› » echo $linux
+tom jack
+如果是@或者*,那么成员将全部被输出
+‹master*› » echo ${linux[@]}
+tom jack
+‹master*› » echo ${linux[*]}
+tom jack
+‹master*› » echo ${linux[1]}
+tom
+‹master*› » echo ${linux[2]}
+jack
+~ » arr_number=(1 2 3 4 5);
+获取数据的长度
+~ » echo ${#arr_number[@]}                                                                                                                                   127 ↵
+5
+或者 
+~ » echo ${#arr_number[*]}                                                                                                                                   127 ↵
+5
+修改元素的值
+~ » echo $arr_number
+1 100 3 4 5
+清除某个元素的值
+~ » unset arr_number[1]                                                                                                                                      127 ↵
+~ » echo $arr_number
+100 3 4 5
+清除整个数组
+~ » unset arr_number
+赋予新值
+~ » arr_number[12]=12
+~ » echo $arr_number
+100 3 4 5 12
+切片访问,下标从1开始元素个数为4
+~ » echo ${arr_number[@]:1:4}
+100 3 4 5
+数组的遍历:
+for v in ${arr_number[@]}; do
+echo $v;
+done
+不同的shell输出的结果还不一样
+例如数组zsh 下标是从1开始的,bash 是从0开始的,所以shell学习的话最好切换到bash模式下面,毕竟linux bash使用的比较大众
+数组元素之间不需要逗号分隔,是以空格分开的
+arr_number=(1 2 3 4)
+bash ~ » echo ${arr_number[0]}
+1
+切换到zsh
+zsh ~ » echo ${arr_number[1]}
+1
+(3)字符串
+获取字符串长度
+bash-3.2$ str=myname
+bash-3.2$ echo ${#str}
+6
+(4)expr:对表达式求值,并输出相应结果,仅仅支持整数运算
+bash-3.2$ expr 1 + 2  # 主要要有空格和let是数字之前不能有空格
+3
+bash-3.2$ expr 1 + 2.2
+expr: not a decimal number: '2.2'
+bash-3.2$ expr 1 % 3
+1
+两个数两加注意用的是反引号不是单引号
+#!/bin/bash
+val=`expr 2 + 2`
+echo "两数之和为 : $val"
+
+(5)exit退出命令
+cd $HOME_DIR
+if[$? -eq 0 ];then # 检查cd是否成功,成功了才执行删除操作
+rm -rf *
+else
+echo "Cannot change directory"
+
+exit 1
+fi
+(6)脚本调试
+set -x
+uname -a
+set +x
+set +关闭某选项
+set -启动某选项
+(8)shell编程风格
+1>每个代码行不超过80个字符
+2>保持一致的缩进深度,每个代码块之间留一个空行
+3>每个脚本文件必须有一个头文件注释
+(9)>>>条件执行
+test命令
+-eq 等于则为真
+-ne 不等于则为真
+-gt 大于则为真
+-ge 大于等于则为真
+-lt 小于则为真
+-le 小于等于则为真
+
+num1=100
+num2=100
+if test $[num1] -eq $[num2]
+then
+echo '两个数相等！'
+else
+echo '两个数不相等！'
+fi
+输出的是"两个数相等!"
+代码中的 [] 执行基本的算数运算，如：
+
+#!/bin/bash
+a=5
+b=6
+result=$[a+b] # 注意等号两边不能有空格
+echo "result 为： $result"
+输出结果是:result 为:11
+字符串测试:
+=   等于则为真
+!=  不相等则为真
+-z 字符串   字符串的长度为零则为真
+-n 字符串   字符串的长度不为零则为真
+文件名测试:
+-e 文件名   如果文件存在则为真
+-r 文件名   如果文件存在且可读则为真
+-w 文件名   如果文件存在且可写则为真
+-x 文件名   如果文件存在且可执行则为真
+-s 文件名   如果文件存在且至少有一个字符则为真
+-d 文件名   如果文件存在且为目录则为真
+-f 文件名   如果文件存在且为普通文件则为真
+-c 文件名   如果文件存在且为字符型特殊文件则为真
+-b 文件名   如果文件存在且为块特殊文件则为真
+
+cd /bin
+if test -e ./bash
+then
+echo '文件已存在!'
+else
+echo '文件不存在!'
+fi
+
+if条件 如果if和then要是写在一行要用分号;分隔开,如果then换行则不用
+(1)
+if condition
+then
+command1 
+command2
+...
+commandN 
+fi
+if [ $(ps -ef | grep -c "ssh") -gt 1 ]; then echo "true"; fi
+(2)
+if condition1
+then
+command1
+elif condition2 
+then 
+command2
+else
+commandN
+fi
+(3)for循环
+for var in item1 item2 ... itemN
+do
+command1
+command2
+...
+commandN
+done
+以及:
+for loop in 1 2 3 4 5
+do
+echo "The value is: $loop"
+done
+(4)while语句
+#!/bin/sh
+int=1
+while(( $int<=5 ))
+do
+echo $int
+let "int++"
+done
+以及:
+echo '按下 <CTRL-D> 退出'
+echo -n '输入你最喜欢的网站名: '
+while read FILM
+do
+echo "是的！$FILM 是一个好网站"
+done
+
+(5)until 循环
+until循环执行一系列命令直至条件为真时停止。
+until循环与while循环在处理方式上刚好相反。
+一般while循环优于until循环，但在某些时候—也只是极少数情况下，until循环更加有用。
+until 语法格式:
+until condition
+do
+command
+done
+条件可为任意测试条件，测试发生在循环末尾，因此循环至少执行一次—请注意这一点。
+
+(6)case
+Shell case语句为多选择语句。可以用case语句匹配一个值与一个模式，如果匹配成功，执行相匹配的命令。case语句格式如下：
+case 值 in
+模式1)
+command1
+command2
+...
+commandN
+;;
+模式2）
+command1
+command2
+...
+commandN
+;;
+esac
+case工作方式如上所示。取值后面必须为单词in，每一模式必须以右括号结束。取值可以为变量或常数。匹配发现取值符合某一模式后，其间所有命令开始执行直至 ;;。
+取值将检测匹配的每一个模式。一旦模式匹配，则执行完匹配模式相应命令后不再继续其他模式。如果无一匹配模式，使用星号 * 捕获该值，再执行后面的命令。
+下面的脚本提示输入1到4，与每一种模式进行匹配：
+echo '输入 1 到 4 之间的数字:'
+echo '你输入的数字为:'
+read aNum
+case $aNum in
+1)  echo '你选择了 1'
+;;
+2)  echo '你选择了 2'
+;;
+3)  echo '你选择了 3'
+;;
+4)  echo '你选择了 4'
+;;
+*)  echo '你没有输入 1 到 4 之间的数字'
+;;
+esac
+输入不同的内容，会有不同的结果，例如：
+输入 1 到 4 之间的数字:
+你输入的数字为:
+3
+你选择了 3
+
+(7)跳出循环:break命令和continue
+#!/bin/bash
+while :
+do
+echo -n "输入 1 到 5 之间的数字:"
+read aNum
+case $aNum in
+1|2|3|4|5) echo "你输入的数字为 $aNum!"
+;;
+*) echo "你输入的数字不是 1 到 5 之间的! 游戏结束"
+break
+;;
+esac
+done
+
+四:shell函数
+#!/bin/bash
+#author:tenlu
+funWithReturn(){
+    echo "这个函数会对输入的两个数字进行相加运算..."
+        echo "输入第一个数字: "
+        read aNum
+        echo "输入第二个数字: "
+        read anotherNum
+        echo "两个数字分别为$aNum和$anotherNum !"
+        return $(($aNum+$anotherNum))
+}
+funWithReturn
+echo "输入的两个数字之和为 $?"
+输出:
+这个函数会对输入的两个数字进行相加运算...
+输入第一个数字:
+1
+输入第二个数字:
+2
+两个数字分别为 1 和 2
+输入的两个数字之和为 3
+
+五:重定向
+
+六.管道和过滤
+
+
+()shell中的各种括号的使用方法
+{}/()/(())
+加一个大括号来限定变量名称的范围
+bash-3.2$ str=muname
+bash-3.2$ echo ${str}s
+mynames
+以这个特性，我们可以很方便地写一个批量改后缀名的程序，我把它命名为mymv，程序如下： 
+#!/bin/bash
+tail=$1 
+for filename in `ls` 
+do
+mv $filename ${filename}.$tail 
+done
+以及命令替换$(pwd)/$(ls)
+参考如下文章:
+http://www.jb51.net/article/123081.htm
+
+
+算数运算符:
+>> <<按位左移和按位右移
+** 求幂
+&  按位与
+‹master*› » let num=5**2
+‹master*› » echo $num
+25
+‹master*› » echo $((2||1))
+1
+$(())是算数扩展
+
+
+
+$# 是传给脚本的参数个数
+$0 是脚本本身的名字
+$1 是传递给该shell脚本的第一个参数
+$2 是传递给该shell脚本的第二个参数
+$@ 是传给脚本的所有参数的列表
+$* 是以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过9个
+$$ 是脚本运行的当前进程ID号
+$? 是显示最后命令的退出状态，0表示没有错误，其他表示有错误
+
+
+软链接和硬链接的区别?grep？
+
+kill Usr2 信号篇
+http://blog.csdn.net/cigogo/article/details/5097048/
+
+tcp与websocket
+https://zhuanlan.zhihu.com/p/27021102?refer=dreawer
+http://blog.csdn.net/cosmoslife/article/details/50468207
+tcpdump
+
+
+http://blog.csdn.net/tenfyguo/article/details/7473706
+http://linux.chinaunix.net/techdoc/develop/2007/09/14/967879.shtml
+
+
+ELK
+https://my.oschina.net/itblog/blog/547250
+
+
+
+===============================================
+1.Shell重定向
+a.输入和输出
+在linux中一切皆是文件,所以硬件也可以表示为文件
+0 -标准输入 键盘:从文件(默认是键盘)读取
+1 -标准输出 屏幕:发送文件到文件(默认是屏幕)
+2 -标准错误 屏幕:发送所有错误文件到一个文件(默认是屏幕)
+上述的3个数字称为文件描述符
+标准输入:
+a1.操作符"<" 是输入重定向操作符,语法如下
+$command <input_filename
+也可以这样在屏幕显示文件内容
+$ cat <exec.php
+利用标准输入进行排序如下:
+tenlu$::sort <px.txt
+23
+23
+32
+56
+bbc
+cba
+nba
+a2.标准输出,操作符">" 是输入重定向操作符
+$ls 
+把ls命令输出的内容写到px文件中了,如果px文件不存在,则自动创建
+$ls> px
+$ cat px
+exec.php
+px
+read.sh
+shell
+a3.标准错误,2>是标准错误重定向操作符,将运行时候错误的信息输入到error_filename文件中
+$command 2>error_filename
+a4.双向重定向>>
+>  是会清空掉之前的整个文件的内容
+>> 不会清空文件之前的内容,以内容追加的形式记录信息
+实例demo:
+#!/bin/bash
+#如果参数个数小于1就退出,不然在屏幕上输出所有的参数信息
+if [ $# -lt 1 ]; then
+# 打印脚本的使用方法信息
+echo "$0"
+#退出脚本
+exit
+else
+echo $@
+fi
+bash-3.2$ echo 23 >>cat.sh
+bash-3.2$ echo 2345 >>cat.sh
+bash-3.2$ cat cat.sh
+23
+2345

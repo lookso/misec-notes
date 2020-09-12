@@ -1,0 +1,80 @@
+过滤器
+1.如果一个linux命令是从标准输入接受他的输入数据,并且标准输出上产生它的输出数据(结果),那么这个命令就被称为过滤器
+过滤器一般和管道使用
+常见过滤器:
+awk/cut/grep/tar/head/paste/sed/sort/split/strings/tac/tail/tee/tr/uniq/wc
+
+awk:
+2.使用awk列出当前账号最常用的10个命令
+history|awk '{print $2}' | sort | uniq -c | sort -rn | head -10
+1776 git
+1142 cd
+608 sudo
+602 vim
+443 rm
+374 ls
+307 mv
+293 awk
+284 svn
+229 cat
+history命令将输出通过管道发送到awk命令,awk命令默认使用空格作为分隔符,将history的输出分为两列,并把第二列内容作为输出通过管道
+发送到sort命令,使用sort命令排序之后,再讲输出通过管道发送到uniq命令，使用uniq命令统计历史命令重复出现的次数,在用sort命令将uniq命令的输出按照重复
+次数从高到低排序,最后使用head命令默认列出前10个信息
+
+3.显示当前系统的总内存大小,单位是kb
+free |grep Mem|awk '{print $2}'
+[shell]# free|grep Mem
+Mem:        500472     465608      34864          0      10600      73724
+[root@iZ257v6fpmnZ shell]# free|grep Mem|awk '{print $1 $2}'
+Mem:500472
+
+cut:
+cut命令被用于文本处理,可以使用这个命令来提取文件中指定列的内容
+/etc/passwd记录账号信息,每一行记录一个账号信息,每个字段之间使用:分隔,第一个字段是账户名,而第6个就是账号的主目录路径
+[root@iZ257v6fpmnZ shell]# grep "/bin/bash" /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+mysql:x:500:500::/home/mysql:/bin/bash
+www:x:501:501::/home/www:/bin/bash
+git:x:502:502::/home/git:/bin/bash
+
+[root@iZ257v6fpmnZ shell]# grep "/bin/bash" /etc/passwd | cut -d: -f1,6
+root:/root
+mysql:/home/mysql
+www:/home/www
+git:/home/git
+# 当前目录下包含的子目录数,看清楚是子目录
+
+[root@iZ257v6fpmnZ shell]# ls -l|cut -c 1|grep d |wc -l
+    3
+
+ls -l 输出的内容中,每行的第一个字符表示文件的类型，如果是d表示的是目录
+cut -c 1 是截取每行的第一个字符
+grep d 来获取文件类型是目录的行
+
+grep:
+查找/Users/tenlu目录下面所有的php文件中包含的11.11关键字
+grep -R --include="*.php" 11.11 /Users/tenlu
+-rn 表示搜索的行号
+grep -R --include="*.php" -rn 11.11 /Users/tenlu
+
+查找common.txt文件中包含txt关键字的行
+grep -rn txt /usr/local/var/www/learn/shell/own/common.txt
+
+查找/usr/local/var/www/learn/shell/own目录下面的文件包含txt的行
+grep -rn txt /usr/local/var/www/learn/shell/own
+
+paste:
+paste命令还有一个很有用的选项（-）。意即对每一个（-），从标准输入中读一次数据。使用空格作域分隔符，以一个6列格式显示目录列表。方法如下
+> ls /etc | paste -d" " - - - - - -
+- - 其实也就是表示第一行2个文件
+- - - 就是表示第一行3个文件,文件之间以空格分隔
+MacBook-Air :: own/Pipe/Filter ‹master*› » ls /usr/local/var/www/learn/shell/own | paste -d" " - -
+Pipe basic
+common.txt fileRedirection
+
+MacBook-Air :: own/Pipe/Filter ‹master*› » ls /usr/local/var/www/learn/shell/own | paste -d" " - - - -
+Pipe basic common.txt fileRedirection
+
+awk和sed的使用
+http://man.linuxde.net/awk
+http://man.linuxde.net/sed
